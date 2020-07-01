@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
                 for (DocumentSnapshot snapshot:task.getResult()){
 
                     Salons salons=snapshot.toObject(Salons.class);
+                    
                     salonsList.add(salons);
 
                 }

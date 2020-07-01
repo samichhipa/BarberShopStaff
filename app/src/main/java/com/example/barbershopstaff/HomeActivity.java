@@ -7,6 +7,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 import com.example.barbershopstaff.Adapter.TimeSlotAdapter;
 import com.example.barbershopstaff.Model.Common;
 import com.example.barbershopstaff.Model.TimeSlot;
+import com.example.barbershopstaff.Model.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
@@ -22,6 +25,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -59,7 +63,7 @@ public class HomeActivity extends AppCompatActivity {
 
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+       // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         firebaseFirestore=FirebaseFirestore.getInstance();
 
@@ -70,8 +74,8 @@ public class HomeActivity extends AppCompatActivity {
         Calendar date = Calendar.getInstance();
         date.add(Calendar.DATE, 0);  //Add Current Date
 
-        LoadAvailableTimeSlotOfBarbers(Common.currenBarber.getBarber_id(),
-                simpleDateFormat.format(date.getTime()));
+      LoadAvailableTimeSlotOfBarbers(Common.currenBarber.getBarber_id(),
+               simpleDateFormat.format(date.getTime()));
 
 
         recyclerView = findViewById(R.id.timeslot_recyclerview);
@@ -111,6 +115,44 @@ public class HomeActivity extends AppCompatActivity {
         });
 
 
+    }
+
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+        builder.setMessage("Are you really want to exit?");
+        builder.setTitle("Note")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        dialogInterface.dismiss();
+                    }
+                }).show();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        String tokenID = FirebaseInstanceId.getInstance().getToken();
+
+        Token token = new Token(tokenID, Common.currenBarber.getBarber_id());
+
+        firebaseFirestore.collection("AllSalons").document(Common.SALON_ID).collection("Branches")
+                .document(Common.currenBranch.getBranch_id()).collection("Barber")
+                .document(Common.currenBarber.getBarber_id()).collection("Token")
+                .document(Common.currenBarber.getBarber_id()).set(token);
     }
 
     private void LoadAvailableTimeSlotOfBarbers(final String barber_id, final String bookDate) {

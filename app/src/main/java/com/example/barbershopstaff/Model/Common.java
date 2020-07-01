@@ -1,5 +1,8 @@
 package com.example.barbershopstaff.Model;
 
+import com.example.barbershopstaff.Notification.APIService;
+import com.example.barbershopstaff.Notification.RetrofitClient;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -7,6 +10,7 @@ public class Common {
 
     public static String SALON_ID="";
     public static String BRANCH_ID="";
+    public static String BARBER_ID="";
     public static Branches currenBranch;
     public static Barber currenBarber;
     public static SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd_MM_yyyy");
@@ -14,6 +18,16 @@ public class Common {
     public static int TOTAl_TIMESLOT=20;
     public static int currentTimeSlot=-1;
     public static final Object DISABLE_TAG = "DISABLE";
+
+    public static final String BASE_URL="https://fcm.googleapis.com/";
+
+    public static APIService getFCMService()
+    {
+
+        return RetrofitClient.getClient(BASE_URL).create(APIService.class);
+
+    }
+
 
     public static String TimeSlotToString(int position) {
 
