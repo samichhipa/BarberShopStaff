@@ -14,8 +14,8 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.barbershopstaff.Adapter.TimeSlotAdapter;
+import com.example.barbershopstaff.Model.BookingInformation;
 import com.example.barbershopstaff.Model.Common;
-import com.example.barbershopstaff.Model.TimeSlot;
 import com.example.barbershopstaff.Model.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -46,7 +46,7 @@ public class HomeActivity extends AppCompatActivity {
 
     FirebaseFirestore firebaseFirestore;
     TimeSlotAdapter adapter;
-    List<TimeSlot> timeSlotList;
+    List<BookingInformation> timeSlotList;
 
 
 
@@ -198,7 +198,7 @@ public class HomeActivity extends AppCompatActivity {
 
                                         for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
 
-                                            timeSlotList.add(queryDocumentSnapshot.toObject(TimeSlot.class));
+                                            timeSlotList.add(queryDocumentSnapshot.toObject(BookingInformation.class));
                                         }
 
                                         adapter = new TimeSlotAdapter(HomeActivity.this, timeSlotList);

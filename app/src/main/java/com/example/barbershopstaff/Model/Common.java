@@ -13,6 +13,7 @@ public class Common {
     public static String BARBER_ID="";
     public static Branches currenBranch;
     public static Barber currenBarber;
+    public static BookingInformation bookingInformation;
     public static SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd_MM_yyyy");
     public static Calendar bookingDate=Calendar.getInstance();
     public static int TOTAl_TIMESLOT=20;
@@ -85,4 +86,6 @@ public class Common {
         }
 
     }
+
+
 }

@@ -6,15 +6,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.barbershopstaff.Model.BookingInformation;
 import com.example.barbershopstaff.Model.Common;
-import com.example.barbershopstaff.Model.TimeSlot;
 import com.example.barbershopstaff.R;
+import com.example.barbershopstaff.ServiceActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +28,7 @@ import java.util.List;
 public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.ViewHolder> {
 
     Context context;
-    List<TimeSlot> timeSlotList;
+    List<BookingInformation> timeSlotList;
     List<CardView> cardViewList;
 
 
@@ -33,7 +39,7 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.ViewHo
 
     }
 
-    public TimeSlotAdapter(Context context, List<TimeSlot> timeSlotList) {
+    public TimeSlotAdapter(Context context, List<BookingInformation> timeSlotList) {
         this.context = context;
         this.timeSlotList = timeSlotList;
         cardViewList = new ArrayList<>();
@@ -58,13 +64,13 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.ViewHo
             holder.timeslot_status.setTextColor(context.getResources().getColor(android.R.color.black));
             holder.timeslot.setTextColor(context.getResources().getColor(android.R.color.black));
             holder.cardView.setCardBackgroundColor(context.getResources().getColor(android.R.color.white));
-            holder.cardView.setEnabled(true);
+           // holder.cardView.setEnabled(true);
         } else {           //if all position is full(booked)//
 
 
-            for (TimeSlot timeSlot : timeSlotList) {
+            for (final BookingInformation timeSlot : timeSlotList) {
 
-                int slot = Integer.parseInt(timeSlot.getSlot().toString());
+                final int slot = Integer.parseInt(timeSlot.getSlot().toString());
                 if (slot == position) {
 
 //we will set tag for all timeslot is full
@@ -75,7 +81,56 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.ViewHo
                     holder.timeslot_status.setText("Booked");
                     holder.timeslot_status.setTextColor(context.getResources().getColor(android.R.color.black));
                     holder.timeslot.setTextColor(context.getResources().getColor(android.R.color.white));
-                    holder.cardView.setEnabled(false);
+                   // holder.cardView.setEnabled(false);
+
+                    holder.cardView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+               FirebaseFirestore.getInstance().collection("AllSalons").document(Common.SALON_ID).collection("Branches")
+                                    .document(Common.currenBranch.getBranch_id()).collection("Barber").document(Common.currenBarber.getBarber_id())
+                                    .collection(Common.simpleDateFormat.format(Common.bookingDate.getTime())).document(timeSlot.getSlot().toString())
+                       .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                   @Override
+                   public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                       if (task.isSuccessful()){
+
+                           if (task.getResult().exists()){
+
+                               Common.bookingInformation=task.getResult().toObject(BookingInformation.class);
+                               context.startActivity(new Intent(context, ServiceActivity.class));
+
+
+
+                           }
+
+
+
+                       }
+                   }
+               }).addOnFailureListener(new OnFailureListener() {
+                   @Override
+                   public void onFailure(@NonNull Exception e) {
+
+                       Toast.makeText(context,e.getMessage(),Toast.LENGTH_SHORT).show();
+                   }
+               });
+
+
+                        }
+                    });
+
+
+
+
+                }else{
+
+                    holder.cardView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+
+                        }
+                    });
 
                 }
 
@@ -92,33 +147,7 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.ViewHo
         }
 
 
-holder.cardView.setOnClickListener(new View.OnClickListener() {
-    @Override
-    public void onClick(View v) {
 
-
-        for (CardView cardView:cardViewList){
-
-            if (cardView.getTag()==null)
-            {
-
-                cardView.setCardBackgroundColor(context.getResources().getColor(android.R.color.white));
-
-            }
-        }
-
-        holder.cardView.setCardBackgroundColor(context.getResources().getColor(android.R.color.holo_orange_dark));
-
-       /* Intent intent=new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
-        intent.putExtra(Common.KEY_TIME_SLOT,position);
-        intent.putExtra(Common.KEY_STEP,3);
-        localBroadcastManager.sendBroadcast(intent);
-
-
-        */
-
-    }
-});
 
 
     }
